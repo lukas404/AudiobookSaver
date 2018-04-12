@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">Audiobook Saver</string>
-    <string name="addBtn">Add</string>
+    <string name="addBtn">Confirm</string>
 </resources>
