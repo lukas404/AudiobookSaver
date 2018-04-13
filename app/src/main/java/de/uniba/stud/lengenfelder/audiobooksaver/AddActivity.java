@@ -28,7 +28,7 @@ public class AddActivity extends AppCompatActivity {
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Audiobook newBook = new Audiobook(audiobooks.size() + 1, titleEditText.getText().toString(), descEditText.getText().toString(), "some.uri.com");
+                Audiobook newBook = new Audiobook(audiobooks.size() + 1, titleEditText.getText().toString(), descEditText.getText().toString(), null);
                 audiobooks.add(newBook);
                 Intent backToList = new Intent(getApplicationContext(), MainActivity.class);
                 backToList.putParcelableArrayListExtra("AUDIOBOOKS_LIST", (ArrayList<? extends Parcelable>) audiobooks);
