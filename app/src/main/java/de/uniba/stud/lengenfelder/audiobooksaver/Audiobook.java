@@ -3,9 +3,13 @@ package de.uniba.stud.lengenfelder.audiobooksaver;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.io.Serializable;
 
 @Entity
-public class Audiobook {
+public class Audiobook implements Parcelable {
     @PrimaryKey
     private int id;
     @ColumnInfo
@@ -53,4 +57,34 @@ public class Audiobook {
     public void setUri(String uri) {
         this.uri = uri;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(title);
+        dest.writeString(desc);
+        dest.writeString(uri);
+    }
+
+    public Audiobook(Parcel in) {
+        id = in.readInt();
+        title = in.readString();
+        desc = in.readString();
+        uri = in.readString();
+    }
+
+    public static final Parcelable.Creator<Audiobook> CREATOR = new Parcelable.Creator<Audiobook>() {
+        public Audiobook createFromParcel(Parcel in) {
+            return new Audiobook(in);
+        }
+
+        public Audiobook[] newArray(int size) {
+            return new Audiobook[size];
+        }
+    };
 }
