@@ -69,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
         if (getIntent().hasExtra("AUDIOBOOKS_LIST")) {
             audiobooks = getIntent().getParcelableArrayListExtra("AUDIOBOOKS_LIST");
             mainListView.setAdapter(new AudiobooksAdapter(this, audiobooks));
+            Toast confirmAdd = Toast.makeText(getApplicationContext(), "New audiobook was added!", Toast.LENGTH_SHORT);
+            confirmAdd.show();
         }
 
     }
