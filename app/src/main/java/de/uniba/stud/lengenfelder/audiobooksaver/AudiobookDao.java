@@ -18,7 +18,7 @@ public interface AudiobookDao {
     Audiobook findById(int id);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertAudiobook(Audiobook audiobook);
+    void insertAllAudiobooks(List<Audiobook> audiobooks);
 
     @Update
     void updateUri(Audiobook audiobook);
