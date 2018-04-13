@@ -1,15 +1,17 @@
 package de.uniba.stud.lengenfelder.audiobooksaver;
 
-import android.content.ContentValues;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -49,8 +51,25 @@ public class MainActivity extends AppCompatActivity {
         mainListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast toast = Toast.makeText(getApplicationContext(), "Item " + position + " was clicked!", Toast.LENGTH_SHORT);
-                toast.show();
+                String uri = audiobooks.get(position).getUri();
+                if (uri != null) {
+                     Intent resumeListening = new Intent(Intent.ACTION_VIEW);
+                     resumeListening.setData(Uri.parse(uri));
+                     startActivity(resumeListening);
+                } else {
+                    Toast.makeText(getApplicationContext(), "No progress saved for this audiobook!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        mainListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                ClipData uriInClipboard = getApplicationContext().getSystemService(ClipboardManager.class).getPrimaryClip();
+                audiobooks.get(position).setUri(uriInClipboard.getItemAt(0).getText().toString());
+                Toast.makeText(getApplicationContext(), "Progress successfully saved!", Toast.LENGTH_SHORT).show();
+                return true;
             }
         });
     }
