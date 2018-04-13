@@ -1,6 +1,9 @@
 package de.uniba.stud.lengenfelder.audiobooksaver;
 
+import android.content.ContentValues;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -18,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private AppDatabase db;
     private List<Audiobook> audiobooks;
+    private ListView mainListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,23 +30,20 @@ public class MainActivity extends AppCompatActivity {
 
         db = AppDatabase.getInstance(getApplicationContext());
 
+        audiobooks = new ArrayList<>();
+        audiobooks = db.audiobookDao().getAll();
+
         FloatingActionButton addBtn = findViewById(R.id.addBtn);
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast toast = Toast.makeText(getApplicationContext(), "Add Button was clicked!", Toast.LENGTH_SHORT);
-                toast.show();
+                Intent addAudiobook = new Intent(getApplicationContext(), AddActivity.class);
+                addAudiobook.putParcelableArrayListExtra("AUDIOBOOKS_LIST", (ArrayList<? extends Parcelable>) audiobooks);
+                startActivity(addAudiobook);
             }
         });
 
-        // Create dummy list for testing
-        audiobooks = new ArrayList<>();
-
-        for (int i = 0; i < 10; i++) {
-            audiobooks.add(new Audiobook(i, "Audiobook " + i, "Descreption of audiobook " + i, "some.url.wtf"));
-        }
-
-        ListView mainListView = findViewById(R.id.mainListView);
+        mainListView = findViewById(R.id.mainListView);
         mainListView.setAdapter(new AudiobooksAdapter(this, audiobooks));
 
         mainListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -52,5 +53,23 @@ public class MainActivity extends AppCompatActivity {
                 toast.show();
             }
         });
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        db.audiobookDao().insertAllAudiobooks(audiobooks);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (getIntent().hasExtra("AUDIOBOOKS_LIST")) {
+            audiobooks = getIntent().getParcelableArrayListExtra("AUDIOBOOKS_LIST");
+            mainListView.setAdapter(new AudiobooksAdapter(this, audiobooks));
+        }
+
     }
 }
