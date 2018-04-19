@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -20,7 +19,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
     private AppDatabase db;
     private List<Audiobook> audiobooks;
     private ListView mainListView;
@@ -40,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent addAudiobook = new Intent(getApplicationContext(), AddActivity.class);
-                addAudiobook.putParcelableArrayListExtra("AUDIOBOOKS_LIST", (ArrayList<? extends Parcelable>) audiobooks);
                 startActivity(addAudiobook);
             }
         });
@@ -53,9 +50,10 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String uri = audiobooks.get(position).getUri();
                 if (uri != null) {
-                     Intent resumeListening = new Intent(Intent.ACTION_VIEW);
-                     resumeListening.setData(Uri.parse(uri));
-                     startActivity(resumeListening);
+                    Intent resumeListening = new Intent(Intent.ACTION_VIEW);
+                    resumeListening.setData(Uri.parse(uri));
+                    startActivity(resumeListening);
+                    Toast.makeText(getApplicationContext(), uri, Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getApplicationContext(), "No progress saved for this audiobook!", Toast.LENGTH_SHORT).show();
                 }
@@ -67,7 +65,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 ClipData uriInClipboard = getApplicationContext().getSystemService(ClipboardManager.class).getPrimaryClip();
-                audiobooks.get(position).setUri(uriInClipboard.getItemAt(0).getText().toString());
+
+                Audiobook clicked = (Audiobook) parent.getItemAtPosition(position);
+                clicked.setUri(uriInClipboard.getItemAt(0).getText().toString());
+                db.audiobookDao().updateUri(clicked);
+
                 Toast.makeText(getApplicationContext(), "Progress successfully saved!", Toast.LENGTH_SHORT).show();
                 return true;
             }
@@ -75,22 +77,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-
-        db.audiobookDao().insertAllAudiobooks(audiobooks);
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
 
-        if (getIntent().hasExtra("AUDIOBOOKS_LIST")) {
-            audiobooks = getIntent().getParcelableArrayListExtra("AUDIOBOOKS_LIST");
-            mainListView.setAdapter(new AudiobooksAdapter(this, audiobooks));
-            Toast confirmAdd = Toast.makeText(getApplicationContext(), "New audiobook was added!", Toast.LENGTH_SHORT);
-            confirmAdd.show();
-        }
+        updateListView();
+    }
 
+    private void updateListView() {
+        audiobooks = db.audiobookDao().getAll();
+        mainListView.setAdapter(new AudiobooksAdapter(this, audiobooks));
     }
 }

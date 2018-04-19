@@ -17,8 +17,14 @@ public interface AudiobookDao {
     @Query("SELECT * FROM audiobook WHERE id=:id")
     Audiobook findById(int id);
 
+    @Query("SELECT COUNT(*) FROM audiobook")
+    int getSize();
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAllAudiobooks(List<Audiobook> audiobooks);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertAudiobook(Audiobook audiobook);
 
     @Update
     void updateUri(Audiobook audiobook);

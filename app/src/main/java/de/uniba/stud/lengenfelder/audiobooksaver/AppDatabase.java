@@ -8,7 +8,7 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
-@Database(entities = {Audiobook.class}, version = 1)
+@Database(entities = {Audiobook.class}, version = 2)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract AudiobookDao audiobookDao();
     private static AppDatabase instance = null;
@@ -19,9 +19,10 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public static AppDatabase getInstance(Context context) {
         if (instance == null) {
-            // temporary solution: main thread queries
-            instance = Room.databaseBuilder(context,
-                    AppDatabase.class, "database-name").allowMainThreadQueries().build();
+            // temporary solution: main thread queries, destructive migration
+            instance = Room.databaseBuilder(context, AppDatabase.class, "database-name")
+                    .fallbackToDestructiveMigration()
+                    .allowMainThreadQueries().build();
         }
         return instance;
     }

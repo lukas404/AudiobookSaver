@@ -3,14 +3,10 @@ package de.uniba.stud.lengenfelder.audiobooksaver;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
-import android.os.Parcel;
-import android.os.Parcelable;
-
-import java.io.Serializable;
 
 @Entity
-public class Audiobook implements Parcelable {
-    @PrimaryKey
+public class Audiobook {
+    @PrimaryKey(autoGenerate = true)
     private int id;
     @ColumnInfo
     private String title;
@@ -19,8 +15,7 @@ public class Audiobook implements Parcelable {
     @ColumnInfo
     private String uri;
 
-    public Audiobook(int id, String title, String desc, String uri) {
-        this.id = id;
+    public Audiobook(String title, String desc, String uri) {
         this.title = title;
         this.desc = desc;
         this.uri = uri;
@@ -57,34 +52,4 @@ public class Audiobook implements Parcelable {
     public void setUri(String uri) {
         this.uri = uri;
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(id);
-        dest.writeString(title);
-        dest.writeString(desc);
-        dest.writeString(uri);
-    }
-
-    public Audiobook(Parcel in) {
-        id = in.readInt();
-        title = in.readString();
-        desc = in.readString();
-        uri = in.readString();
-    }
-
-    public static final Parcelable.Creator<Audiobook> CREATOR = new Parcelable.Creator<Audiobook>() {
-        public Audiobook createFromParcel(Parcel in) {
-            return new Audiobook(in);
-        }
-
-        public Audiobook[] newArray(int size) {
-            return new Audiobook[size];
-        }
-    };
 }
